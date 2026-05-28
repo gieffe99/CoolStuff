@@ -42,7 +42,7 @@
       position: fixed;
       top: 18px;
       right: 18px;
-      z-index: 50;
+      z-index: 30;
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(10px);
       padding: 10px 12px;
@@ -152,7 +152,7 @@
       left: auto;
       top: auto;
       transition: left 0.45s ease, top 0.45s ease, transform 0.2s ease;
-      z-index: 10;
+      z-index: 60;
     }
 
     .hidden {
@@ -474,12 +474,31 @@
       const buttonWidth = noBtn.offsetWidth;
       const buttonHeight = noBtn.offsetHeight;
       const padding = 20;
+      const safeTopArea = window.innerWidth <= 500 ? 80 : 20;
 
       const maxX = window.innerWidth - buttonWidth - padding;
       const maxY = window.innerHeight - buttonHeight - padding;
 
-      const randomX = Math.floor(Math.random() * (maxX - padding)) + padding;
-      const randomY = Math.floor(Math.random() * (maxY - padding)) + padding;
+      let randomX;
+      let randomY;
+      let isOverThemeSwitcher;
+      let attempts = 0;
+
+      do {
+        randomX = Math.floor(Math.random() * (maxX - padding)) + padding;
+        randomY = Math.floor(Math.random() * (maxY - safeTopArea)) + safeTopArea;
+
+        const themeBox = document.querySelector(".theme-switcher").getBoundingClientRect();
+
+        isOverThemeSwitcher = !(
+          randomX + buttonWidth < themeBox.left ||
+          randomX > themeBox.right ||
+          randomY + buttonHeight < themeBox.top ||
+          randomY > themeBox.bottom
+        );
+
+        attempts++;
+      } while (isOverThemeSwitcher && attempts < 20);
 
       noBtn.style.position = "fixed";
       noBtn.style.left = randomX + "px";
