@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Domanda Sì o No</title>
+  <title>Esci con me?</title>
 
   <!-- Libreria calendario carina: Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -247,7 +247,7 @@
 </head>
 <body>
   <div class="card">
-    <h1>Vuoi uscire con me?</h1>
+    <h1>Esci con me?</h1>
 
     <div class="buttons" id="buttonsArea">
       <button id="yesBtn" type="button">Sì</button>
@@ -371,12 +371,12 @@
 
     confirmBtn.addEventListener("click", () => {
       if (!selectedFood) {
-        alert("Scegli prima cosa mangiare!");
+        alert("No! Prima dimmi cosa mangiare");
         return;
       }
 
       if (!selectedDate) {
-        alert("Scegli una data!");
+        alert("Non mi hai detto quandooo");
         return;
       }
 
