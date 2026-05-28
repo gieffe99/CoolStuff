@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Stanza 404</title>
+
+  <style>
+    :root {
+      --bg-start: #050505;
+      --bg-end: #1a0000;
+      --card-bg: rgba(12, 12, 16, 0.92);
+      --text: #f5f5f5;
+      --muted: #b8b8b8;
+      --accent: #b91c1c;
+      --accent-dark: #7f1d1d;
+      --accent-soft: rgba(185, 28, 28, 0.18);
+      --border: rgba(248, 113, 113, 0.35);
+      --glow: rgba(248, 113, 113, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, var(--accent-soft), transparent 32%),
+        linear-gradient(135deg, var(--bg-start), var(--bg-end));
+      overflow-x: hidden;
+      padding: 76px 16px 32px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 38px 38px;
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 30;
+      display: flex;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.62);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+
+    .theme-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.7);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.2s ease, outline 0.2s ease;
+    }
+
+    .theme-dot:hover {
+      transform: scale(1.18) rotate(10deg);
+    }
+
+    .theme-dot.active {
+      outline: 3px solid white;
+      outline-offset: 3px;
+    }
+
+    .theme-red { background: linear-gradient(135deg, #111, #7f1d1d); }
+    .theme-purple { background: linear-gradient(135deg, #080010, #581c87); }
+    .theme-green { background: linear-gradient(135deg, #020617, #14532d); }
+    .theme-blue { background: linear-gradient(135deg, #020617, #1e3a8a); }
+    .theme-amber { background: linear-gradient(135deg, #111827, #92400e); }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 100%);
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 0 45px rgba(0,0,0,0.5), 0 0 32px var(--glow);
+      border-radius: 26px;
+      padding: 30px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: -70px auto auto -70px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 6vw, 58px);
+      line-height: 0.95;
+      margin-bottom: 12px;
+      text-shadow: 0 0 20px var(--glow);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 650px;
+      line-height: 1.55;
+      font-size: 17px;
+    }
+
+    .progress {
+      min-width: 112px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress strong {
+      color: var(--text);
+      display: block;
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    .room {
+      position: relative;
+      z-index: 1;
+      min-height: 410px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background:
+        radial-gradient(circle at 80% 15%, var(--accent-soft), transparent 22%),
+        rgba(255,255,255,0.035);
+      padding: 24px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.32s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button,
+    input {
+      font-size: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      cursor: pointer;
+      color: white;
+      background: var(--accent);
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      background: var(--accent-dark);
+      box-shadow: 0 10px 22px var(--glow);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .ghost-btn:hover {
+      background: var(--accent-soft);
+    }
+
+    .input-wrap {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1;
+      min-width: 220px;
+      padding: 13px 15px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.34);
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .clue-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px dashed var(--border);
+      background: rgba(0,0,0,0.25);
+      color: var(--muted);
+    }
+
+    .wrong {
+      animation: shake 0.3s ease;
+    }
+
+    .inventory {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .item {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .item.unlocked {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--accent-soft);
+    }
+
+    .symbols {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .symbol-btn {
+      min-height: 84px;
+      border-radius: 18px;
+      font-size: 30px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .symbol-btn.selected {
+      background: var(--accent);
+      transform: scale(1.04);
+    }
+
+    .poster-area {
+      position: relative;
+      min-height: 260px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        rgba(0,0,0,0.28);
+      background-size: 32px 32px;
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .poster-text {
+      position: absolute;
+      left: 22px;
+      top: 20px;
+      max-width: 390px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .hidden-btn {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      right: 17%;
+      bottom: 21%;
+      opacity: 0.09;
+      background: var(--accent);
+      box-shadow: 0 0 28px var(--glow);
+    }
+
+    .hidden-btn:hover,
+    .hidden-btn:focus {
+      opacity: 1;
+      transform: scale(1.35);
+    }
+
+    .tiny-note {
+      position: absolute;
+      right: 14px;
+      bottom: 12px;
+      color: rgba(255,255,255,0.28);
+      font-size: 11px;
+      user-select: none;
+    }
+
+    .maze {
+      position: relative;
+      height: 280px;
+      margin-top: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+
+    .fake-door {
+      position: absolute;
+      padding: 11px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .fake-door:hover {
+      transform: rotate(-2deg) scale(1.06);
+      color: white;
+    }
+
+    .door-1 { left: 7%; top: 18%; }
+    .door-2 { right: 10%; top: 16%; }
+    .door-3 { left: 16%; bottom: 14%; }
+    .door-4 { right: 18%; bottom: 20%; }
+
+    .real-door {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      background: transparent;
+      color: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .real-door:hover {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 0 25px var(--glow);
+    }
+
+    .final-title {
+      font-size: clamp(34px, 7vw, 64px);
+      margin-bottom: 12px;
+    }
+
+    .final-card {
+      padding: 22px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-top: 72px;
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      .header {
+        flex-direction: column;
+      }
+
+      .progress {
+        text-align: left;
+      }
+
+      .room {
+        padding: 18px;
+      }
+
+      .symbols {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .theme-switcher {
+        right: 10px;
+        top: 10px;
+        gap: 7px;
+      }
+
+      .theme-dot {
+        width: 23px;
+        height: 23px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-switcher" aria-label="Cambia tema">
+    <button class="theme-dot theme-red active" type="button" data-theme="red" aria-label="Tema rosso sangue"></button>
+    <button class="theme-dot theme-purple" type="button" data-theme="purple" aria-label="Tema viola incubo"></button>
+    <button class="theme-dot theme-green" type="button" data-theme="green" aria-label="Tema verde tossico"></button>
+    <button class="theme-dot theme-blue" type="button" data-theme="blue" aria-label="Tema blu abisso"></button>
+    <button class="theme-dot theme-amber" type="button" data-theme="amber" aria-label="Tema ambra stregata"></button>
+  </div>
+
+  <main class="app">
+    <section class="card" id="gameCard">
+      <div class="header">
+        <div>
+          <div class="kicker">Mini escape room web</div>
+          <h1>La Stanza 404</h1>
+          <p class="subtitle">Ti sei svegliato in una pagina che non doveva esistere. Per uscire devi superare tre prove: logica, osservazione e un pizzico di sospetto verso ogni bottone.</p>
+        </div>
+        <div class="progress">
+          <strong id="progressNumber">0/3</strong>
+          prove risolte
+        </div>
+      </div>
+
+      <div class="inventory" aria-label="Oggetti trovati">
+        <span class="item" id="itemKey">🔑 Chiave muta</span>
+        <span class="item" id="itemEye">👁 Occhio finto</span>
+        <span class="item" id="itemDoor">🚪 Porta sbagliata</span>
+      </div>
+
+      <div class="room" id="room">
+        <section class="screen active" id="screenStart">
+          <h2>Regola numero zero</h2>
+          <p>Non fidarti della pagina. Non tutto quello che sembra cliccabile serve. Non tutto quello che serve sembra cliccabile.</p>
+          <p>Quando sei pronto, entra. La pagina promette che non urlerà. Probabilmente mente.</p>
+          <div class="btn-row">
+            <button type="button" onclick="goToScreen('screenRiddle')">Entra nella stanza</button>
+            <button class="ghost-btn" type="button" onclick="fakeScare(this)">Leggi le condizioni</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screenRiddle">
+          <h2>Prova 1 — Il codice della stanza</h2>
+          <p>Sulla parete c'è scritto: <em>“Sono pari, ma se mi giri divento infinito. Sono due cerchi, ma non sono occhiali.”</em></p>
+          <p>Inserisci il codice numerico.</p>
+          <div class="input-wrap">
+            <input id="codeInput" type="text" inputmode="numeric" placeholder="Codice..." autocomplete="off" />
+            <button type="button" onclick="checkCode()">Sblocca</button>
+          </div>
+          <div class="clue-box" id="codeFeedback">Suggerimento: non cercare una parola. Cerca una forma.</div>
+        </section>
+
+        <section class="screen" id="screenSymbols">
+          <h2>Prova 2 — Tocca nell'ordine giusto</h2>
+          <p>La radio gracchia: <em>“Prima ciò che vede, poi ciò che apre, poi ciò che resta quando la luce muore.”</em></p>
+          <p>Scegli i simboli nell'ordine corretto.</p>
+          <div class="symbols">
+            <button class="symbol-btn" type="button" data-symbol="moon">🌙</button>
+            <button class="symbol-btn" type="button" data-symbol="eye">👁</button>
+            <button class="symbol-btn" type="button" data-symbol="key">🔑</button>
+            <button class="symbol-btn" type="button" data-symbol="skull">💀</button>
+          </div>
+          <div class="clue-box" id="symbolFeedback">Sequenza inserita: nessuna.</div>
+        </section>
+
+        <section class="screen" id="screenHidden">
+          <h2>Prova 3 — Il bottone che non vuole farsi trovare</h2>
+          <p>Qui non devi risolvere. Devi osservare. Da qualche parte nella stanza c'è un piccolo interruttore quasi invisibile.</p>
+          <div class="poster-area">
+            <div class="poster-text">
+              Manifesto strappato: “Le uscite evidenti sono per chi non ha letto bene.”<br>
+              Sotto, qualcuno ha inciso: “Il bottone non è al centro, ma vorrebbe esserlo.”
+            </div>
+            <button class="hidden-btn" type="button" aria-label="Interruttore nascosto" onclick="unlockHiddenButton()"></button>
+            <span class="tiny-note">psst... controlla gli angoli, ma non troppo</span>
+          </div>
+          <div class="clue-box" id="hiddenFeedback">Interruttore non trovato.</div>
+        </section>
+
+        <section class="screen" id="screenDoors">
+          <h2>Ultima stanza — Scegli la porta</h2>
+          <p>Quattro porte mentono. Una porta non ha voglia di farsi notare. Classico comportamento da porta colpevole.</p>
+          <div class="maze">
+            <button class="fake-door door-1" type="button" onclick="doorLie(this)">Porta A</button>
+            <button class="fake-door door-2" type="button" onclick="doorLie(this)">Porta B</button>
+            <button class="fake-door door-3" type="button" onclick="doorLie(this)">Porta C</button>
+            <button class="fake-door door-4" type="button" onclick="doorLie(this)">Porta D</button>
+            <button class="real-door" type="button" onclick="finishGame()">porta minuscola</button>
+          </div>
+          <div class="clue-box" id="doorFeedback">La porta giusta è quella che si vergogna di essere una porta.</div>
+        </section>
+
+        <section class="screen" id="screenFinal">
+          <h2 class="final-title">Sei uscito.</h2>
+          <div class="final-card">
+            <p><strong>Risultato:</strong> sopravvissuto alla Stanza 404.</p>
+            <p>Tempo perso: discutibile. Soddisfazione: inspiegabilmente alta.</p>
+            <p>La pagina ti lascia andare, ma ti guarda male mentre chiudi la scheda.</p>
+          </div>
+          <div class="btn-row">
+            <button type="button" onclick="restartGame()">Ricomincia</button>
+            <button class="ghost-btn" type="button" onclick="randomMessage()">Messaggio inquietante random</button>
+          </div>
+          <div class="clue-box hidden" id="randomFinalMessage"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const themes = {
+      red: {
+        "--bg-start": "#050505",
+        "--bg-end": "#1a0000",
+        "--card-bg": "rgba(12, 12, 16, 0.92)",
+        "--accent": "#b91c1c",
+        "--accent-dark": "#7f1d1d",
+        "--accent-soft": "rgba(185, 28, 28, 0.18)",
+        "--border": "rgba(248, 113, 113, 0.35)",
+        "--glow": "rgba(248, 113, 113, 0.28)"
+      },
+      purple: {
+        "--bg-start": "#070014",
+        "--bg-end": "#24003b",
+        "--card-bg": "rgba(14, 8, 24, 0.93)",
+        "--accent": "#a855f7",
+        "--accent-dark": "#7e22ce",
+        "--accent-soft": "rgba(168, 85, 247, 0.17)",
+        "--border": "rgba(216, 180, 254, 0.35)",
+        "--glow": "rgba(168, 85, 247, 0.28)"
+      },
+      green: {
+        "--bg-start": "#020617",
+        "--bg-end": "#052e16",
+        "--card-bg": "rgba(3, 18, 18, 0.93)",
+        "--accent": "#22c55e",
+        "--accent-dark": "#15803d",
+        "--accent-soft": "rgba(34, 197, 94, 0.15)",
+        "--border": "rgba(134, 239, 172, 0.32)",
+        "--glow": "rgba(34, 197, 94, 0.25)"
+      },
+      blue: {
+        "--bg-start": "#020617",
+        "--bg-end": "#0f172a",
+        "--card-bg": "rgba(7, 14, 32, 0.93)",
+        "--accent": "#38bdf8",
+        "--accent-dark": "#0369a1",
+        "--accent-soft": "rgba(56, 189, 248, 0.14)",
+        "--border": "rgba(125, 211, 252, 0.3)",
+        "--glow": "rgba(56, 189, 248, 0.24)"
+      },
+      amber: {
+        "--bg-start": "#09090b",
+        "--bg-end": "#451a03",
+        "--card-bg": "rgba(22, 18, 12, 0.93)",
+        "--accent": "#f59e0b",
+        "--accent-dark": "#b45309",
+        "--accent-soft": "rgba(245, 158, 11, 0.15)",
+        "--border": "rgba(252, 211, 77, 0.32)",
+        "--glow": "rgba(245, 158, 11, 0.24)"
+      }
+    };
+
+    const themeButtons = document.querySelectorAll(".theme-dot");
+    const screens = document.querySelectorAll(".screen");
+    const progressNumber = document.getElementById("progressNumber");
+    const gameCard = document.getElementById("gameCard");
+
+    let solved = 0;
+    let symbolSequence = [];
+    const correctSequence = ["eye", "key", "moon"];
+
+    function setTheme(themeName) {
+      const selectedTheme = themes[themeName];
+      Object.entries(selectedTheme).forEach(([property, value]) => {
+        document.documentElement.style.setProperty(property, value);
+      });
+      themeButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.theme === themeName);
+      });
+    }
+
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => setTheme(button.dataset.theme));
+      button.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        setTheme(button.dataset.theme);
+      }, { passive: false });
+    });
+
+    function goToScreen(screenId) {
+      screens.forEach((screen) => screen.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateProgress() {
+      progressNumber.textContent = `${solved}/3`;
+    }
+
+    function markItem(id) {
+      document.getElementById(id).classList.add("unlocked");
+    }
+
+    function shakeElement(element) {
+      element.classList.remove("wrong");
+      void element.offsetWidth;
+      element.classList.add("wrong");
+    }
+
+    function fakeScare(button) {
+      button.textContent = "Troppo tardi.";
+      shakeElement(gameCard);
+    }
+
+    function checkCode() {
+      const input = document.getElementById("codeInput");
+      const feedback = document.getElementById("codeFeedback");
+      const value = input.value.trim();
+
+      if (value === "8" || value === "08") {
+        solved = Math.max(solved, 1);
+        updateProgress();
+        markItem("itemKey");
+        feedback.textContent = "Codice accettato. La chiave muta è tua. Non parla, ma giudica.";
+        setTimeout(() => goToScreen("screenSymbols"), 900);
+      } else {
+        feedback.textContent = "No. La parete sospira. Suggerimento: il simbolo dell'infinito è un numero sdraiato.";
+        shakeElement(input);
+      }
+    }
+
+    document.getElementById("codeInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") checkCode();
+    });
+
+    document.querySelectorAll(".symbol-btn").forEach((button) => {
+      button.addEventListener("click", () => pickSymbol(button));
+      button.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        pickSymbol(button);
+      }, { passive: false });
+    });
+
+    function pickSymbol(button) {
+      const symbol = button.dataset.symbol;
+      const feedback = document.getElementById("symbolFeedback");
+
+      symbolSequence.push(symbol);
+      button.classList.add("selected");
+
+      const readable = symbolSequence.map((item) => {
+        if (item === "eye") return "occhio";
+        if (item === "key") return "chiave";
+        if (item === "moon") return "luna";
+        return "teschio";
+      }).join(" → ");
+
+      feedback.textContent = `Sequenza inserita: ${readable}`;
+
+      if (symbolSequence.length === correctSequence.length) {
+        const isCorrect = symbolSequence.every((item, index) => item === correctSequence[index]);
+
+        if (isCorrect) {
+          solved = Math.max(solved, 2);
+          updateProgress();
+          markItem("itemEye");
+          feedback.textContent = "La radio smette di gracchiare. Hai ottenuto l'occhio finto. Fa schifo, ma serve.";
+          setTimeout(() => goToScreen("screenHidden"), 1100);
+        } else {
+          feedback.textContent = "Sequenza sbagliata. Il teschio ride. Maleducato.";
+          symbolSequence = [];
+          document.querySelectorAll(".symbol-btn").forEach((btn) => btn.classList.remove("selected"));
+          shakeElement(document.getElementById("screenSymbols"));
+        }
+      }
+    }
+
+    function unlockHiddenButton() {
+      const feedback = document.getElementById("hiddenFeedback");
+      solved = Math.max(solved, 3);
+      updateProgress();
+      markItem("itemDoor");
+      feedback.textContent = "Interruttore trovato. La stanza fa finta che non fosse importante.";
+      setTimeout(() => goToScreen("screenDoors"), 900);
+    }
+
+    function doorLie(button) {
+      const feedback = document.getElementById("doorFeedback");
+      const messages = [
+        "Questa porta è solo arredamento con autostima.",
+        "Hai bussato. Qualcosa ha bussato dall'altra parte. Meglio di no.",
+        "La porta si apre su un'altra pagina 404. Imbarazzante.",
+        "Questa porta richiede un aggiornamento premium. Ovviamente falso."
+      ];
+      feedback.textContent = messages[Math.floor(Math.random() * messages.length)];
+      shakeElement(button);
+    }
+
+    function finishGame() {
+      goToScreen("screenFinal");
+    }
+
+    function randomMessage() {
+      const box = document.getElementById("randomFinalMessage");
+      const messages = [
+        "Hai chiuso la stanza, ma la stanza ha salvato il tuo nome nei preferiti.",
+        "Da qualche parte, una porta minuscola è orgogliosa di te.",
+        "Il vero enigma era capire perché hai cliccato tutto.",
+        "La Stanza 404 tornerà quando dimenticherai di fare backup."
+      ];
+      box.textContent = messages[Math.floor(Math.random() * messages.length)];
+      box.classList.remove("hidden");
+    }
+
+    function restartGame() {
+      solved = 0;
+      symbolSequence = [];
+      updateProgress();
+      document.getElementById("codeInput").value = "";
+      document.getElementById("codeFeedback").textContent = "Suggerimento: non cercare una parola. Cerca una forma.";
+      document.getElementById("symbolFeedback").textContent = "Sequenza inserita: nessuna.";
+      document.getElementById("hiddenFeedback").textContent = "Interruttore non trovato.";
+      document.getElementById("doorFeedback").textContent = "La porta giusta è quella che si vergogna di essere una porta.";
+      document.getElementById("randomFinalMessage").classList.add("hidden");
+      document.querySelectorAll(".symbol-btn").forEach((btn) => btn.classList.remove("selected"));
+      document.querySelectorAll(".item").forEach((item) => item.classList.remove("unlocked"));
+      goToScreen("screenStart");
+    }
+  </script>
+</body>
+</html>
