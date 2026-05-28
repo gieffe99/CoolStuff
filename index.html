@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Giochi</title>
+
+  <style>
+    :root {
+      --bg-1: #0f172a;
+      --bg-2: #1e1b4b;
+      --bg-3: #3b0764;
+      --card: rgba(255, 255, 255, 0.09);
+      --card-hover: rgba(255, 255, 255, 0.14);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #f472b6;
+      --accent-2: #38bdf8;
+      --border: rgba(255, 255, 255, 0.18);
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(244, 114, 182, 0.28), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.22), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(168, 85, 247, 0.20), transparent 28%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+      padding: 48px 18px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 42px;
+      animation: fadeDown 0.7s ease;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: clamp(38px, 8vw, 74px);
+      line-height: 0.95;
+      margin-bottom: 18px;
+      letter-spacing: -2px;
+      text-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    }
+
+    .subtitle {
+      max-width: 620px;
+      margin: 0 auto;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+      animation: fadeUp 0.7s ease;
+    }
+
+    .card {
+      position: relative;
+      min-height: 290px;
+      padding: 28px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: 0 24px 60px var(--shadow);
+      backdrop-filter: blur(16px);
+      text-decoration: none;
+      color: var(--text);
+      overflow: hidden;
+      transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      right: -70px;
+      top: -70px;
+      background: var(--glow, rgba(255, 255, 255, 0.14));
+      transition: transform 0.35s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.34);
+    }
+
+    .card:hover::before {
+      transform: scale(1.45);
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .icon {
+      width: 74px;
+      height: 74px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: 36px;
+      margin-bottom: 18px;
+      transition: transform 0.25s ease;
+    }
+
+    .card:hover .icon {
+      transform: rotate(-6deg) scale(1.08);
+    }
+
+    .card h2 {
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .pill {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: normal;
+    }
+
+    .arrow {
+      font-size: 26px;
+      transition: transform 0.25s ease;
+    }
+
+    .card:hover .arrow {
+      transform: translateX(8px);
+    }
+
+    .invite {
+      --glow: rgba(244, 114, 182, 0.28);
+    }
+
+    .escape {
+      --glow: rgba(239, 68, 68, 0.24);
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 34px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 14px;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 34px 14px;
+      }
+
+      header {
+        margin-bottom: 28px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: 250px;
+        padding: 24px;
+      }
+
+      .card h2 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div class="badge">Scegli dove entrare</div>
+      <h1>Mini pagine interattive</h1>
+      <p class="subtitle">
+        Due esperienze diverse, una più romantica e una più inquietante. Scegli la pagina da aprire e buona fortuna con i bottoni strani.
+      </p>
+    </header>
+
+    <section class="grid" aria-label="Elenco pagine disponibili">
+      <a class="card invite" href="invito.html">
+        <div class="card-content">
+          <div>
+            <div class="icon">💌</div>
+            <h2>Sì o No</h2>
+            <p>
+              Una pagina simpatica con scelta del tema, bottoni furbi, preferenze per il cibo e riepilogo finale.
+            </p>
+          </div>
+
+          <div class="card-footer">
+            <span class="pill">invito.html</span>
+            <span class="arrow">→</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card escape" href="escaperoom.html">
+        <div class="card-content">
+          <div>
+            <div class="icon">🚪</div>
+            <h2>La Stanza 404</h2>
+            <p>
+              Una mini escape room dark/horror con enigmi, bottoni nascosti, porte sospette e temi scuri.
+            </p>
+          </div>
+
+          <div class="card-footer">
+            <span class="pill">escaperoom.html</span>
+            <span class="arrow">→</span>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <footer>
+      Apri questa pagina come <strong>index.html</strong> per usarla come homepage del sito.
+    </footer>
+  </main>
+</body>
+</html>
